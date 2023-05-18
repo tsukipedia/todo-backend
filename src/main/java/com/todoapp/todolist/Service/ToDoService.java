@@ -15,7 +15,7 @@ public class ToDoService {
     private static Map<String, ToDo> toDos = new HashMap<>();
 
     public List<ToDo> getToDos() {
-        return new ArrayList(toDos.values());
+        return new ArrayList<>(toDos.values());
     }
 
     public ToDo createToDo(ToDo toDo) {

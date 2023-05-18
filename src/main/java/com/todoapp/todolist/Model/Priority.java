@@ -1,6 +1,6 @@
 package com.todoapp.todolist.Model;
 
-enum Priority {
+public enum Priority {
     HIGH,
     MEDIUM,
     LOW
