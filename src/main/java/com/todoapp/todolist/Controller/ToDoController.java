@@ -1,5 +1,6 @@
 package com.todoapp.todolist.Controller;
 
+import java.text.ParseException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.todoapp.todolist.Model.ToDo;
+import com.todoapp.todolist.Model.ToDoDTO;
 import com.todoapp.todolist.Service.ToDoService;
 
 @RestController
@@ -21,12 +22,13 @@ public class ToDoController {
     ToDoService service;
 
     @GetMapping()
-    public ResponseEntity<List<ToDo>> getToDos() {
-        return new ResponseEntity<List<ToDo>>(service.getToDos(), HttpStatus.OK);
+    public ResponseEntity<List<ToDoDTO>> getToDos() throws ParseException {
+        return new ResponseEntity<List<ToDoDTO>>(service.getToDos(), HttpStatus.OK);
     }
 
     @PostMapping()
-    public ResponseEntity<ToDo> addToDo(@RequestBody ToDo toDo) {
-        return new ResponseEntity<ToDo>(service.createToDo(toDo), HttpStatus.OK);
+    public ResponseEntity<ToDoDTO> addToDo(@RequestBody ToDoDTO toDo) throws ParseException {
+        return new ResponseEntity<ToDoDTO>(service.createToDo(toDo.toEntity()), HttpStatus.OK);
     }
+
 }

@@ -1,28 +1,62 @@
 package com.todoapp.todolist.Service;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.todoapp.todolist.Model.Priority;
 import com.todoapp.todolist.Model.ToDo;
+import com.todoapp.todolist.Model.ToDoDTO;
 
 @Service
 public class ToDoService {
 
     private static Map<String, ToDo> toDos = new HashMap<>();
 
-    public List<ToDo> getToDos() {
-        return new ArrayList<>(toDos.values());
+    static {
+        Date due = new GregorianCalendar(2023, 5, 31, 23, 59).getTime();
+        String id1 = java.util.UUID.randomUUID().toString();
+        String id2 = java.util.UUID.randomUUID().toString();
+
+        ToDo toDo1 = new ToDo();
+        ToDo toDo2 = new ToDo();
+        
+        toDo1.setId(id1);
+        toDo1.setContent("delectus aut autem");
+        toDo1.setDone(false);
+        toDo1.setPriority(Priority.MEDIUM);
+
+        toDo2.setId(id2);
+        toDo2.setContent("quis ut nam facilis et officia qui");
+        toDo2.setDone(false);
+        toDo2.setDueDate(due);
+
+        toDos.put(id1, toDo1);
+        toDos.put(id2, toDo2);
     }
 
-    public ToDo createToDo(ToDo toDo) {
+    public List<ToDoDTO> getToDos() throws ParseException {
+        List<ToDoDTO> todoDTOs = new ArrayList<>();
+
+        for (ToDo todo : toDos.values()) {
+            todoDTOs.add(todo.toDTO());
+        }
+    
+        return todoDTOs;
+    }
+
+    public ToDoDTO createToDo(ToDo toDo) throws ParseException {
         String id = java.util.UUID.randomUUID().toString();
         toDo.setId(id);
         toDo.setDone(false);
+        toDo.setCreationDate(new Date());
         toDos.put(id, toDo);
-        return toDo;
+        return toDo.toDTO();
     }
 }
