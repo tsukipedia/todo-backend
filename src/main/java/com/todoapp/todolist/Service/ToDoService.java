@@ -7,6 +7,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.springframework.stereotype.Service;
 
@@ -59,4 +60,36 @@ public class ToDoService {
         toDos.put(id, toDo);
         return toDo.toDTO();
     }
+
+    public ToDoDTO getToDo(String id) throws ParseException {
+        return toDos.get(id).toDTO();
+    }
+
+    public List<ToDoDTO> searchToDos(String name, String priority, Boolean isDone) throws ParseException {
+        List<ToDoDTO> todoDTOs = new ArrayList<>();
+        for (Entry<String, ToDo> entry : toDos.entrySet()) {
+            ToDo currentToDo = entry.getValue();
+            if (isMatchingFilter(currentToDo, name, priority, isDone)) {
+                todoDTOs.add(currentToDo.toDTO());
+            }
+        }
+        return todoDTOs;
+    }
+    
+    private boolean isMatchingFilter(ToDo todo, String name, String priority, Boolean isDone) {
+        if (name != null && !todo.getContent().contains(name)) {
+            return false;
+        }
+    
+        if (priority != null && todo.getPriority() != Priority.fromString(priority)) {
+            return false;
+        }
+    
+        if (isDone != null && isDone != todo.isDone()) {
+            return false;
+        }
+    
+        return true;
+    }
+    
 }

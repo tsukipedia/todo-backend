@@ -28,7 +28,7 @@ public class ToDoDTO {
         ToDo toDo = new ToDo();
         toDo.setId(getId());
         toDo.setContent(getContent());
-        toDo.setPriority(Priority.valueOf(getPriority()));
+        toDo.setPriority(Priority.fromString(getPriority()));
         toDo.setDone(isDone());
         toDo.setDueDate(getFormattedDate(getDueDate()));
         toDo.setDoneDate(getFormattedDate(getDoneDate()));

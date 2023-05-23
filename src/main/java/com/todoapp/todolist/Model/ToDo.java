@@ -33,6 +33,7 @@ public class ToDo {
         dto.setId(getId());
         dto.setContent(getContent());
         dto.setDone(isDone());
+        dto.setPriority(getPriority() != null ? getPriority().toString() : null);
         dto.setDueDate(getFormattedDate(getDueDate()));
         dto.setDoneDate(getFormattedDate(getDoneDate()));
         dto.setCreationDate(getFormattedDate(getCreationDate()));
