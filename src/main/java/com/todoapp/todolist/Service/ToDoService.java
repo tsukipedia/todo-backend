@@ -7,6 +7,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Map.Entry;
 
 import org.springframework.stereotype.Service;
@@ -42,30 +44,30 @@ public class ToDoService {
         toDos.put(id2, toDo2);
     }
 
-    public List<ToDoDTO> getToDos() throws ParseException {
+    public Optional<List<ToDoDTO>> getToDos() throws ParseException {
         List<ToDoDTO> todoDTOs = new ArrayList<>();
 
         for (ToDo todo : toDos.values()) {
             todoDTOs.add(todo.toDTO());
         }
     
-        return todoDTOs;
+        return Optional.of(todoDTOs);
     }
 
-    public ToDoDTO createToDo(ToDo toDo) throws ParseException {
+    public Optional<ToDoDTO> createToDo(ToDo toDo) throws ParseException {
         String id = java.util.UUID.randomUUID().toString();
         toDo.setId(id);
         toDo.setDone(false);
         toDo.setCreationDate(new Date());
         toDos.put(id, toDo);
-        return toDo.toDTO();
+        return Optional.of(getToDo(id).toDTO());
     }
 
-    public ToDoDTO getToDo(String id) throws ParseException {
-        return toDos.get(id).toDTO();
+    public ToDo getToDo(String id) throws ParseException {
+        return Optional.ofNullable(toDos.get(id)).orElseThrow(() -> new NoSuchElementException(id));
     }
 
-    public List<ToDoDTO> searchToDos(String name, String priority, Boolean isDone) throws ParseException {
+    public Optional<List<ToDoDTO>> searchToDos(String name, String priority, Boolean isDone) throws ParseException {
         List<ToDoDTO> todoDTOs = new ArrayList<>();
         for (Entry<String, ToDo> entry : toDos.entrySet()) {
             ToDo currentToDo = entry.getValue();
@@ -73,7 +75,16 @@ public class ToDoService {
                 todoDTOs.add(currentToDo.toDTO());
             }
         }
-        return todoDTOs;
+        return Optional.of(todoDTOs);
+    }
+
+    public Optional<ToDoDTO> editToDo(String id, ToDo editEntity) throws ParseException {
+        ToDo updatedToDo = getToDo(id);
+        if(editEntity.getContent() != null) updatedToDo.setContent(editEntity.getContent());
+        if(editEntity.getDueDate() != null) updatedToDo.setDueDate(editEntity.getDueDate());
+        if(editEntity.getPriority() != null) updatedToDo.setPriority(editEntity.getPriority());
+        toDos.put(id, updatedToDo);
+        return Optional.ofNullable(getToDo(id).toDTO());
     }
     
     private boolean isMatchingFilter(ToDo todo, String name, String priority, Boolean isDone) {
