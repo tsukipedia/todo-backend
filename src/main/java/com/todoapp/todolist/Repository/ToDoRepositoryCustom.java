@@ -15,4 +15,5 @@ public interface ToDoRepositoryCustom {
     public List<ToDo> filterToDos(String name, Priority priority, Boolean isDone);
     public ToDo changeToDoStatus(String id);
     public Metrics calculateMetrics();
+    public void deleteToDo(String id);
 }

@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -57,7 +58,7 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
     }
 
     public ToDo getToDo(String id) {
-        return toDos.stream().filter(todo -> id.equals(todo.getId())).findFirst().orElse(null);
+        return toDos.stream().filter(todo -> id.equals(todo.getId())).findFirst().orElseThrow(NoSuchElementException::new);
     }
 
     @Override
@@ -165,6 +166,10 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         return (weeks + " weeks, " + days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds");
     }
     
+    @Override
+    public void deleteToDo(String id) {
+        toDos.remove(getToDo(id));
+    }
 
     private boolean isMatchingFilter(ToDo todo, String name, Priority priority, Boolean isDone) {
         if (name != null && !todo.getContent().contains(name)) {

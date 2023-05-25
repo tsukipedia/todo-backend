@@ -70,5 +70,9 @@ public class ToDoService {
     public Metrics getTimeMetrics() {
         return repository.calculateMetrics();
     }
+
+    public void deleteToDo(String id) {
+        repository.deleteToDo(id);
+    }
     
 }
