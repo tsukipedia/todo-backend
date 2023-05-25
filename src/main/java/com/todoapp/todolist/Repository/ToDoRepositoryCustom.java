@@ -12,4 +12,5 @@ public interface ToDoRepositoryCustom {
     public ToDo addToDo(ToDo todo);
     public ToDo editToDo(String id, ToDo todo);
     public List<ToDo> filterToDos(String name, Priority priority, Boolean isDone);
+    public ToDo changeToDoStatus(String id);
 }

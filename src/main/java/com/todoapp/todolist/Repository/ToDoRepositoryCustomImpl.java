@@ -102,6 +102,22 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         return todos;
     }
 
+    @Override
+    public ToDo changeToDoStatus(String id) {
+        ToDo todo = getToDo(id);
+        int index = toDos.indexOf(todo);
+        if (todo.isDone()) {
+            todo.setDone(false);
+            todo.setDoneDate(null);
+        }
+        else {
+            todo.setDone(true);
+            todo.setDoneDate(new Date());
+        }
+        toDos.set(index, todo);
+        return getToDo(id);
+    }
+
     private boolean isMatchingFilter(ToDo todo, String name, Priority priority, Boolean isDone) {
         if (name != null && !todo.getContent().contains(name)) {
             return false;

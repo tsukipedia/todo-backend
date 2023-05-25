@@ -61,5 +61,9 @@ public class ToDoService {
     public Optional<ToDoDTO> editToDo(String id, ToDo editEntity) throws ParseException {
         return Optional.of(repository.editToDo(id, editEntity).toDTO());
     }
+
+    public Optional<ToDoDTO> checkToDo(String id) throws ParseException {
+        return Optional.of(repository.changeToDoStatus(id).toDTO());
+    }
     
 }

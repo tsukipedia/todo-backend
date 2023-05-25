@@ -53,4 +53,9 @@ public class ToDoController {
         return new ResponseEntity<ToDoDTO>(service.editToDo(toDoID, toDo.toEntity()).get(), HttpStatus.OK);
     }
 
+    @PatchMapping("/check/{todoID}")
+    public ResponseEntity<ToDoDTO> checkToDo(@PathVariable("todoID") String toDoID) throws ParseException {
+        return new ResponseEntity<ToDoDTO>(service.checkToDo(toDoID).get(), HttpStatus.OK);
+    }
+
 }
