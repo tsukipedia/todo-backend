@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,15 +25,10 @@ public class ToDoController {
     ToDoService service;
 
     @GetMapping()
-    public ResponseEntity<List<ToDoDTO>> getToDos() throws ParseException {
-        return service.getToDos().map(todos -> new ResponseEntity<>(todos, HttpStatus.OK))
+    public ResponseEntity<List<ToDoDTO>> getToDos(
+        @RequestParam(required = false) String sortBy) throws ParseException {
+        return service.getToDos(sortBy).map(todos -> new ResponseEntity<>(todos, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
-    }
-
-    @GetMapping("/{todoID}")
-    public ResponseEntity<ToDoDTO> getToDo(@PathVariable("todoID") String toDoID) throws ParseException {
-        ToDoDTO todo = service.getToDo(toDoID).toDTO();
-        return new ResponseEntity<>(todo, HttpStatus.OK);
     }
 
     @GetMapping("/filter")
@@ -52,7 +47,7 @@ public class ToDoController {
                 .orElseThrow(RuntimeException::new);
     }
 
-    @PutMapping("/{todoID}")
+    @PatchMapping("/{todoID}")
     public ResponseEntity<ToDoDTO> editToDo(@PathVariable("todoID") String toDoID, @RequestBody ToDoDTO toDo)
             throws ParseException {
         return new ResponseEntity<ToDoDTO>(service.editToDo(toDoID, toDo.toEntity()).get(), HttpStatus.OK);

@@ -4,14 +4,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-//import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-
 import lombok.Data;
 
 @Data
 public class ToDoDTO {
-    @Id
     private String id;
 
     private String content;
@@ -20,9 +16,7 @@ public class ToDoDTO {
     private String priority;
     
     private String doneDate;
-    //@CreatedDate
     private String creationDate;
-
 
     public ToDo toEntity() throws ParseException {
         ToDo toDo = new ToDo();

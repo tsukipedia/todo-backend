@@ -4,19 +4,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-//import org.springframework.data.annotation.CreatedDate;
-//import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import jakarta.persistence.Entity;
-//import jakarta.persistence.EntityListeners;
-import jakarta.persistence.Id;
 import lombok.Data;
 
 @Data
-@Entity
-//@EntityListeners(AuditingEntityListener.class)
 public class ToDo {
-    @Id
     private String id;
 
     private String content;
@@ -25,7 +16,6 @@ public class ToDo {
     private Priority priority;
     
     private Date doneDate;
-    //@CreatedDate
     private Date creationDate;
 
     public ToDoDTO toDTO() throws ParseException {
