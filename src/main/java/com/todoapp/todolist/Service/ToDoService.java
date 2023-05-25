@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.todoapp.todolist.Model.Metrics;
 import com.todoapp.todolist.Model.Priority;
 import com.todoapp.todolist.Model.ToDo;
 import com.todoapp.todolist.Model.ToDoDTO;
@@ -64,6 +65,10 @@ public class ToDoService {
 
     public Optional<ToDoDTO> checkToDo(String id) throws ParseException {
         return Optional.of(repository.changeToDoStatus(id).toDTO());
+    }
+
+    public Metrics getTimeMetrics() {
+        return repository.calculateMetrics();
     }
     
 }

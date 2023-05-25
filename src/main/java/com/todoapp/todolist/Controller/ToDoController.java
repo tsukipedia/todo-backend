@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.todoapp.todolist.Model.Metrics;
 import com.todoapp.todolist.Model.ToDoDTO;
 import com.todoapp.todolist.Service.ToDoService;
 
@@ -39,6 +40,11 @@ public class ToDoController {
         return service.searchToDos(name, priority, isDone)
                 .map(todos -> new ResponseEntity<List<ToDoDTO>>(todos, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    }
+
+    @GetMapping("/metrics")
+    public ResponseEntity<Metrics> getTimeMetrics() {
+        return new ResponseEntity<>(service.getTimeMetrics(), HttpStatus.OK);
     }
 
     @PostMapping()

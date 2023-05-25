@@ -1,40 +1,59 @@
 package com.todoapp.todolist.Repository;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.OptionalDouble;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.stereotype.Service;
 
+import com.todoapp.todolist.Model.Metrics;
 import com.todoapp.todolist.Model.Priority;
 import com.todoapp.todolist.Model.ToDo;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class ToDoRepositoryCustomImpl implements ToDoRepository {
 
     private static List<ToDo> toDos = new ArrayList<>();
 
-    static {
-        Date due = new GregorianCalendar(2023, 5, 31, 23, 59).getTime();
-        String id1 = java.util.UUID.randomUUID().toString();
-        String id2 = java.util.UUID.randomUUID().toString();
+    @PostConstruct
+    public void init() {
+        Random random = new Random();
+        for (int i = 0; i < 100; i++) {
+            ToDo dummyToDo = new ToDo();
+            dummyToDo.setContent("test item " + i);
+            dummyToDo.setPriority(Priority.values()[random.nextInt(Priority.values().length)]);
 
-        ToDo toDo1 = new ToDo();
-        ToDo toDo2 = new ToDo();
-        
-        toDo1.setId(id1);
-        toDo1.setContent("delectus aut autem");
-        toDo1.setDone(false);
-        toDo1.setPriority(Priority.MEDIUM);
+            // Create random dates within the last year for creationDate
+            LocalDate localDate = LocalDate.now().minusDays(random.nextInt(365));
+            Date creationDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            dummyToDo.setCreationDate(creationDate);
 
-        toDo2.setId(id2);
-        toDo2.setContent("quis ut nam facilis et officia qui");
-        toDo2.setDone(false);
-        toDo2.setDueDate(due);
+            // Create random dates within the next year for dueDate
+            localDate = LocalDate.now().plusDays(random.nextInt(365));
+            Date dueDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            dummyToDo.setDueDate(dueDate);
 
-        toDos.add(toDo1);
-        toDos.add(toDo2);
+            boolean isDone = random.nextBoolean();
+            dummyToDo.setDone(isDone);
+
+            if (isDone) {
+                long elapsedDaysBetween = ThreadLocalRandom.current().nextLong(1, 365);
+                Date doneDate = Date.from(dummyToDo.getCreationDate().toInstant().plus(Duration.ofDays(elapsedDaysBetween)));
+                dummyToDo.setDoneDate(doneDate);
+            } else {
+                dummyToDo.setDoneDate(null);
+            }
+
+            addToDo(dummyToDo);
+        }
     }
 
     public ToDo getToDo(String id) {
@@ -74,8 +93,8 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
     public ToDo addToDo(ToDo todo) {
         String id = java.util.UUID.randomUUID().toString();
         todo.setId(id);
-        todo.setDone(false);
-        todo.setCreationDate(new Date());
+        //todo.setDone(false);
+        //todo.setCreationDate(new Date());
         toDos.add(todo);
         return getToDo(id);
     }
@@ -117,6 +136,35 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         toDos.set(index, todo);
         return getToDo(id);
     }
+
+    @Override
+    public Metrics calculateMetrics() {
+        Metrics metrics = new Metrics();
+        metrics.setAverageTime(calculateAverageTime(toDos, null));
+        metrics.setLowPriorityAverageTime(calculateAverageTime(toDos, Priority.LOW));
+        metrics.setMediumPriorityAverageTime(calculateAverageTime(toDos, Priority.MEDIUM));
+        metrics.setHighPriorityAverageTime(calculateAverageTime(toDos, Priority.HIGH));
+        return metrics;
+    }
+    
+    private String calculateAverageTime(List<ToDo> toDos, Priority priority) {
+        OptionalDouble averageTimeOptional = toDos.stream()
+                .filter(todo -> todo.isDone() && todo.getDoneDate() != null && (priority == null || todo.getPriority() == priority))
+                .mapToLong(todo -> todo.getDoneDate().getTime() - todo.getCreationDate().getTime())
+                .average();
+        return averageTimeOptional.isPresent() ? getTimeString((long) averageTimeOptional.getAsDouble()) : "No data available";
+    }
+    
+    private String getTimeString(long milliseconds) {
+        Duration duration = Duration.ofMillis(milliseconds);
+        long weeks = duration.toDays() / 7;
+        long days = duration.toDays() % 7;
+        long hours = duration.toHours() % 24;
+        long minutes = duration.toMinutes() % 60;
+        long seconds = duration.getSeconds() % 60;
+        return (weeks + " weeks, " + days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds");
+    }
+    
 
     private boolean isMatchingFilter(ToDo todo, String name, Priority priority, Boolean isDone) {
         if (name != null && !todo.getContent().contains(name)) {
