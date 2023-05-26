@@ -20,20 +20,20 @@ public class ToDoService {
     @Autowired
     ToDoRepository repository;
 
-    public Optional<List<ToDoDTO>> getToDos(String sortBy) throws ParseException {
+    public Optional<List<ToDoDTO>> getToDos(Integer pageSize, Integer lastFetchedIndex, String sortBy) throws ParseException {
         List<ToDoDTO> todoDTOs = new ArrayList<>();
         List<ToDo> todos = new ArrayList<>();
 
-        if(sortBy == null) todos = repository.findAll();
+        if(sortBy == null) todos = repository.findAll(pageSize, lastFetchedIndex);
         else {
             if(sortBy.equalsIgnoreCase("priority")) {
-                todos = repository.findAllAndSortByPriority();
+                todos = repository.findAllAndSortByPriority(pageSize, lastFetchedIndex);
             }
             else if(sortBy.equalsIgnoreCase("due date") || sortBy.equalsIgnoreCase("duedate")) {
-                todos = repository.findAllAndSortByDueDate();
+                todos = repository.findAllAndSortByDueDate(pageSize, lastFetchedIndex);
             }
             else {
-                todos = repository.findAll();
+                todos = repository.findAll(pageSize, lastFetchedIndex);
             }
         }
 
@@ -48,9 +48,9 @@ public class ToDoService {
         return Optional.of(repository.addToDo(toDo).toDTO());
     }
 
-    public Optional<List<ToDoDTO>> searchToDos(String name, String priority, Boolean isDone) throws ParseException {
+    public Optional<List<ToDoDTO>> searchToDos(Integer pageSize, Integer lastFetchedIndex, String name, String priority, Boolean isDone) throws ParseException {
         List<ToDoDTO> todoDTOs = new ArrayList<>();
-        List<ToDo> filteredToDos = repository.filterToDos(name, Priority.fromString(priority), isDone);
+        List<ToDo> filteredToDos = repository.filterToDos(pageSize, lastFetchedIndex, name, Priority.fromString(priority), isDone);
 
         for (ToDo todo : filteredToDos) {
             todoDTOs.add(todo.toDTO());

@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -22,6 +23,7 @@ import com.todoapp.todolist.Model.Metrics;
 import com.todoapp.todolist.Model.ToDoDTO;
 import com.todoapp.todolist.Service.ToDoService;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/todo")
 public class ToDoController {
@@ -30,17 +32,22 @@ public class ToDoController {
 
     @GetMapping()
     public ResponseEntity<List<ToDoDTO>> getToDos(
+            @RequestParam Integer pageSize,
+            @RequestParam Integer lastFetchedIndex,
             @RequestParam(required = false) String sortBy) throws ParseException {
-        return service.getToDos(sortBy).map(todos -> new ResponseEntity<>(todos, HttpStatus.OK))
+        return service.getToDos(pageSize, lastFetchedIndex, sortBy)
+                .map(todos -> new ResponseEntity<>(todos, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
     @GetMapping("/filter")
     public ResponseEntity<List<ToDoDTO>> filterToDos(
+            @RequestParam Integer pageSize,
+            @RequestParam Integer lastFetchedIndex,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String priority,
             @RequestParam(required = false) Boolean isDone) throws ParseException {
-        return service.searchToDos(name, priority, isDone)
+        return service.searchToDos(pageSize, lastFetchedIndex, name, priority, isDone)
                 .map(todos -> new ResponseEntity<List<ToDoDTO>>(todos, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }

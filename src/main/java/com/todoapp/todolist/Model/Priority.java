@@ -1,9 +1,9 @@
 package com.todoapp.todolist.Model;
 
 public enum Priority {
-    LOW,
+    HIGH,
     MEDIUM,
-    HIGH;
+    LOW;
 
     public static Priority fromString(String value) {
         if(value != null) {

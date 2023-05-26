@@ -4,12 +4,14 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -47,7 +49,8 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
 
             if (isDone) {
                 long elapsedDaysBetween = ThreadLocalRandom.current().nextLong(1, 365);
-                Date doneDate = Date.from(dummyToDo.getCreationDate().toInstant().plus(Duration.ofDays(elapsedDaysBetween)));
+                Date doneDate = Date
+                        .from(dummyToDo.getCreationDate().toInstant().plus(Duration.ofDays(elapsedDaysBetween)));
                 dummyToDo.setDoneDate(doneDate);
             } else {
                 dummyToDo.setDoneDate(null);
@@ -58,44 +61,47 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
     }
 
     public ToDo getToDo(String id) {
-        return toDos.stream().filter(todo -> id.equals(todo.getId())).findFirst().orElseThrow(NoSuchElementException::new);
+        return toDos.stream().filter(todo -> id.equals(todo.getId())).findFirst()
+                .orElseThrow(NoSuchElementException::new);
     }
 
     @Override
-    public List<ToDo> findAll() {
-        return toDos;
+    public List<ToDo> findAll(Integer pageSize, Integer lastFetchedIndex) {
+        Integer startIndex = Math.min(lastFetchedIndex + 1, toDos.size());
+        Integer endIndex = Math.min(startIndex + pageSize, toDos.size());
+        return toDos.subList(startIndex, endIndex);
     }
 
     @Override
-    public List<ToDo> findAllAndSortByDueDate() {
-        List<ToDo> temp = toDos;
-        temp.sort((todo1, todo2) -> {
-            if (todo1.getDueDate() == null && todo2.getDueDate() == null) return 0;
-            else if (todo1.getDueDate() == null) return -1;
-            else if (todo2.getDueDate() == null) return 1;
-            else return todo1.getDueDate().compareTo(todo2.getDueDate());
-        });
-        return temp;
+    public List<ToDo> findAllAndSortByDueDate(Integer pageSize, Integer lastFetchedIndex) {
+        List<ToDo> sortedList = toDos.stream()
+                .sorted(Comparator.comparing(ToDo::getDueDate, Comparator.nullsFirst(Comparator.naturalOrder())))
+                .collect(Collectors.toList());
+
+        Integer startIndex = Math.min(lastFetchedIndex + 1, sortedList.size());
+        Integer endIndex = Math.min(startIndex + pageSize, sortedList.size());
+
+        return sortedList.subList(startIndex, endIndex);
     }
 
     @Override
-    public List<ToDo> findAllAndSortByPriority() {
-        List<ToDo> temp = toDos;
-        temp.sort((todo1, todo2) -> {
-            if (todo1.getPriority() == null && todo2.getPriority() == null) return 0;
-            else if (todo1.getPriority() == null) return -1;
-            else if (todo2.getPriority() == null) return 1;
-            return todo1.getPriority().compareTo(todo2.getPriority());
-        });
-        return temp;
+    public List<ToDo> findAllAndSortByPriority(Integer pageSize, Integer lastFetchedIndex) {
+        List<ToDo> sortedList = toDos.stream()
+                .sorted(Comparator.comparing(ToDo::getPriority, Comparator.nullsFirst(Comparator.naturalOrder())))
+                .collect(Collectors.toList());
+
+        Integer startIndex = Math.min(lastFetchedIndex + 1, sortedList.size());
+        Integer endIndex = Math.min(startIndex + pageSize, sortedList.size());
+
+        return sortedList.subList(startIndex, endIndex);
     }
 
     @Override
     public ToDo addToDo(ToDo todo) {
         String id = java.util.UUID.randomUUID().toString();
         todo.setId(id);
-        //todo.setDone(false);
-        //todo.setCreationDate(new Date());
+        // todo.setDone(false);
+        // todo.setCreationDate(new Date());
         toDos.add(todo);
         return getToDo(id);
     }
@@ -104,22 +110,28 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
     public ToDo editToDo(String id, ToDo editEntity) {
         ToDo updatedToDo = getToDo(id);
         int index = toDos.indexOf(updatedToDo);
-        if (editEntity.getContent() != updatedToDo.getContent()) updatedToDo.setContent(editEntity.getContent());
-        if (editEntity.getDueDate() != updatedToDo.getDueDate()) updatedToDo.setDueDate(editEntity.getDueDate());
-        if (editEntity.getPriority() != updatedToDo.getPriority()) updatedToDo.setPriority(editEntity.getPriority());
+        if (editEntity.getContent() != updatedToDo.getContent())
+            updatedToDo.setContent(editEntity.getContent());
+        if (editEntity.getDueDate() != updatedToDo.getDueDate())
+            updatedToDo.setDueDate(editEntity.getDueDate());
+        if (editEntity.getPriority() != updatedToDo.getPriority())
+            updatedToDo.setPriority(editEntity.getPriority());
         toDos.set(index, updatedToDo);
         return getToDo(id);
     }
 
     @Override
-    public List<ToDo> filterToDos(String name, Priority priority, Boolean isDone) {
-        List<ToDo> todos = new ArrayList<>();
-        for (ToDo todo : toDos) {
-            if (isMatchingFilter(todo, name, priority, isDone)) {
-                todos.add(todo);
-            }
-        }
-        return todos;
+    public List<ToDo> filterToDos(Integer pageSize, Integer lastFetchedIndex, String name, Priority priority,
+            Boolean isDone) {
+        List<ToDo> filteredList = toDos.stream()
+                .filter(todo -> isMatchingFilter(todo, name, priority, isDone))
+                .collect(Collectors.toList());
+
+        Integer startIndex = Math.min(lastFetchedIndex + 1, filteredList.size());
+        Integer endIndex = Math.min(startIndex + pageSize, filteredList.size());
+
+        return filteredList.subList(startIndex, endIndex);
+
     }
 
     @Override
@@ -129,8 +141,7 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         if (todo.isDone()) {
             todo.setDone(false);
             todo.setDoneDate(null);
-        }
-        else {
+        } else {
             todo.setDone(true);
             todo.setDoneDate(new Date());
         }
@@ -147,15 +158,17 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         metrics.setHighPriorityAverageTime(calculateAverageTime(toDos, Priority.HIGH));
         return metrics;
     }
-    
+
     private String calculateAverageTime(List<ToDo> toDos, Priority priority) {
         OptionalDouble averageTimeOptional = toDos.stream()
-                .filter(todo -> todo.isDone() && todo.getDoneDate() != null && (priority == null || todo.getPriority() == priority))
+                .filter(todo -> todo.isDone() && todo.getDoneDate() != null
+                        && (priority == null || todo.getPriority() == priority))
                 .mapToLong(todo -> todo.getDoneDate().getTime() - todo.getCreationDate().getTime())
                 .average();
-        return averageTimeOptional.isPresent() ? getTimeString((long) averageTimeOptional.getAsDouble()) : "No data available";
+        return averageTimeOptional.isPresent() ? getTimeString((long) averageTimeOptional.getAsDouble())
+                : "No data available";
     }
-    
+
     private String getTimeString(long milliseconds) {
         Duration duration = Duration.ofMillis(milliseconds);
         long weeks = duration.toDays() / 7;
@@ -163,9 +176,10 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         long hours = duration.toHours() % 24;
         long minutes = duration.toMinutes() % 60;
         long seconds = duration.getSeconds() % 60;
-        return (weeks + " weeks, " + days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds");
+        return (weeks + " weeks, " + days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds
+                + " seconds");
     }
-    
+
     @Override
     public void deleteToDo(String id) {
         toDos.remove(getToDo(id));
@@ -175,16 +189,16 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         if (name != null && !todo.getContent().contains(name)) {
             return false;
         }
-    
+
         if (priority != null && todo.getPriority() != priority) {
             return false;
         }
-    
+
         if (isDone != null && isDone != todo.isDone()) {
             return false;
         }
-    
+
         return true;
     }
-    
+
 }
