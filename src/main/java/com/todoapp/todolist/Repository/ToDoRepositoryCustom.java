@@ -16,4 +16,5 @@ public interface ToDoRepositoryCustom {
     public ToDo changeToDoStatus(String id);
     public Metrics calculateMetrics();
     public void deleteToDo(String id);
+    public Integer getToDosCount();
 }

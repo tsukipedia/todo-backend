@@ -74,5 +74,9 @@ public class ToDoService {
     public void deleteToDo(String id) {
         repository.deleteToDo(id);
     }
+
+    public Integer getToDosCount() {
+        return repository.getToDosCount();
+    }
     
 }

@@ -57,6 +57,11 @@ public class ToDoController {
         return new ResponseEntity<>(service.getTimeMetrics(), HttpStatus.OK);
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getToDosCount() {
+        return new ResponseEntity<Integer>(service.getToDosCount(), HttpStatus.OK);
+    }
+
     @PostMapping()
     public ResponseEntity<ToDoDTO> addToDo(@RequestBody ToDoDTO toDo) throws ParseException {
         try {

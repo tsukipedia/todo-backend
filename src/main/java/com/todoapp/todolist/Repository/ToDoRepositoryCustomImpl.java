@@ -159,6 +159,16 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         return metrics;
     }
 
+    @Override
+    public void deleteToDo(String id) {
+        toDos.remove(getToDo(id));
+    }
+
+    @Override
+    public Integer getToDosCount() {
+        return toDos.size();
+    }
+
     private String calculateAverageTime(List<ToDo> toDos, Priority priority) {
         OptionalDouble averageTimeOptional = toDos.stream()
                 .filter(todo -> todo.isDone() && todo.getDoneDate() != null
@@ -178,11 +188,6 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         long seconds = duration.getSeconds() % 60;
         return (weeks + " weeks, " + days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds
                 + " seconds");
-    }
-
-    @Override
-    public void deleteToDo(String id) {
-        toDos.remove(getToDo(id));
     }
 
     private boolean isMatchingFilter(ToDo todo, String name, Priority priority, Boolean isDone) {
