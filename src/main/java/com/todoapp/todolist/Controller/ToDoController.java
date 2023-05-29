@@ -1,7 +1,6 @@
 package com.todoapp.todolist.Controller;
 
 import java.text.ParseException;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.todoapp.todolist.Model.Metrics;
 import com.todoapp.todolist.Model.ToDoDTO;
+import com.todoapp.todolist.Model.ToDoListResponse;
 import com.todoapp.todolist.Service.ToDoService;
 
 @CrossOrigin
@@ -31,7 +31,7 @@ public class ToDoController {
     ToDoService service;
 
     @GetMapping()
-    public ResponseEntity<List<ToDoDTO>> getToDos(
+    public ResponseEntity<ToDoListResponse> getToDos(
             @RequestParam Integer pageSize,
             @RequestParam Integer lastFetchedIndex,
             @RequestParam(required = false) String sortBy) throws ParseException {
@@ -41,25 +41,20 @@ public class ToDoController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<ToDoDTO>> filterToDos(
+    public ResponseEntity<ToDoListResponse> filterToDos(
             @RequestParam Integer pageSize,
             @RequestParam Integer lastFetchedIndex,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String priority,
             @RequestParam(required = false) Boolean isDone) throws ParseException {
         return service.searchToDos(pageSize, lastFetchedIndex, name, priority, isDone)
-                .map(todos -> new ResponseEntity<List<ToDoDTO>>(todos, HttpStatus.OK))
+                .map(todos -> new ResponseEntity<>(todos, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
     @GetMapping("/metrics")
     public ResponseEntity<Metrics> getTimeMetrics() {
         return new ResponseEntity<>(service.getTimeMetrics(), HttpStatus.OK);
-    }
-
-    @GetMapping("/count")
-    public ResponseEntity<Integer> getToDosCount() {
-        return new ResponseEntity<Integer>(service.getToDosCount(), HttpStatus.OK);
     }
 
     @PostMapping()

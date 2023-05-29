@@ -31,7 +31,12 @@ public class ToDo {
     }
 
     private String getFormattedDate(Date date) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-        return date == null ? null : formatter.format(date);
+        if(date == null) {
+            return null;
+        }
+        else {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+            return formatter.format(date);
+        }
     }
 }

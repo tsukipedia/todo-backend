@@ -30,7 +30,13 @@ public class ToDoDTO {
     }
 
     private Date getFormattedDate(String date) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-        return date == null ? null : formatter.parse(date);
+        if(date == null) {
+            return null;
+        }
+        else {
+            date = date.replace(' ', 'T');
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm");
+            return formatter.parse(date);
+        }
     }
 }

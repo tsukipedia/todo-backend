@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.todoapp.todolist.Model.Metrics;
 import com.todoapp.todolist.Model.Priority;
 import com.todoapp.todolist.Model.ToDo;
+import com.todoapp.todolist.Model.ToDoList;
 
 import jakarta.annotation.PostConstruct;
 
@@ -66,14 +67,20 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
     }
 
     @Override
-    public List<ToDo> findAll(Integer pageSize, Integer lastFetchedIndex) {
+    public ToDoList findAll(Integer pageSize, Integer lastFetchedIndex) {
+        ToDoList response = new ToDoList();
         Integer startIndex = Math.min(lastFetchedIndex + 1, toDos.size());
         Integer endIndex = Math.min(startIndex + pageSize, toDos.size());
-        return toDos.subList(startIndex, endIndex);
+
+        response.setList(toDos.subList(startIndex, endIndex));
+        response.setTotalToDos(toDos.size());
+
+        return response;
     }
 
     @Override
-    public List<ToDo> findAllAndSortByDueDate(Integer pageSize, Integer lastFetchedIndex) {
+    public ToDoList findAllAndSortByDueDate(Integer pageSize, Integer lastFetchedIndex) {
+        ToDoList response = new ToDoList();
         List<ToDo> sortedList = toDos.stream()
                 .sorted(Comparator.comparing(ToDo::getDueDate, Comparator.nullsFirst(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
@@ -81,11 +88,15 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         Integer startIndex = Math.min(lastFetchedIndex + 1, sortedList.size());
         Integer endIndex = Math.min(startIndex + pageSize, sortedList.size());
 
-        return sortedList.subList(startIndex, endIndex);
+        response.setList(sortedList.subList(startIndex, endIndex));
+        response.setTotalToDos(sortedList.size());
+
+        return response;
     }
 
     @Override
-    public List<ToDo> findAllAndSortByPriority(Integer pageSize, Integer lastFetchedIndex) {
+    public ToDoList findAllAndSortByPriority(Integer pageSize, Integer lastFetchedIndex) {
+        ToDoList response = new ToDoList();
         List<ToDo> sortedList = toDos.stream()
                 .sorted(Comparator.comparing(ToDo::getPriority, Comparator.nullsFirst(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
@@ -93,7 +104,10 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         Integer startIndex = Math.min(lastFetchedIndex + 1, sortedList.size());
         Integer endIndex = Math.min(startIndex + pageSize, sortedList.size());
 
-        return sortedList.subList(startIndex, endIndex);
+        response.setList(sortedList.subList(startIndex, endIndex));
+        response.setTotalToDos(sortedList.size());
+
+        return response;
     }
 
     @Override
@@ -121,8 +135,9 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
     }
 
     @Override
-    public List<ToDo> filterToDos(Integer pageSize, Integer lastFetchedIndex, String name, Priority priority,
+    public ToDoList filterToDos(Integer pageSize, Integer lastFetchedIndex, String name, Priority priority,
             Boolean isDone) {
+        ToDoList response = new ToDoList();
         List<ToDo> filteredList = toDos.stream()
                 .filter(todo -> isMatchingFilter(todo, name, priority, isDone))
                 .collect(Collectors.toList());
@@ -130,8 +145,10 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
         Integer startIndex = Math.min(lastFetchedIndex + 1, filteredList.size());
         Integer endIndex = Math.min(startIndex + pageSize, filteredList.size());
 
-        return filteredList.subList(startIndex, endIndex);
+        response.setList(filteredList.subList(startIndex, endIndex));
+        response.setTotalToDos(filteredList.size());
 
+        return response;
     }
 
     @Override
@@ -162,11 +179,6 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
     @Override
     public void deleteToDo(String id) {
         toDos.remove(getToDo(id));
-    }
-
-    @Override
-    public Integer getToDosCount() {
-        return toDos.size();
     }
 
     private String calculateAverageTime(List<ToDo> toDos, Priority priority) {
