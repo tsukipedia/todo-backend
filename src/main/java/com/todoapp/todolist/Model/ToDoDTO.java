@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import io.micrometer.common.util.StringUtils;
 import lombok.Data;
 
 @Data
@@ -30,7 +31,7 @@ public class ToDoDTO {
     }
 
     private Date getFormattedDate(String date) throws ParseException {
-        if(date == null) {
+        if(StringUtils.isBlank(date)) {
             return null;
         }
         else {

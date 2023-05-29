@@ -1,16 +1,12 @@
 package com.todoapp.todolist.Repository;
 
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -20,46 +16,10 @@ import com.todoapp.todolist.Model.Priority;
 import com.todoapp.todolist.Model.ToDo;
 import com.todoapp.todolist.Model.ToDoList;
 
-import jakarta.annotation.PostConstruct;
-
 @Service
 public class ToDoRepositoryCustomImpl implements ToDoRepository {
 
     private static List<ToDo> toDos = new ArrayList<>();
-
-    @PostConstruct
-    public void init() {
-        Random random = new Random();
-        for (int i = 0; i < 100; i++) {
-            ToDo dummyToDo = new ToDo();
-            dummyToDo.setContent("test item " + i);
-            dummyToDo.setPriority(Priority.values()[random.nextInt(Priority.values().length)]);
-
-            // Create random dates within the last year for creationDate
-            LocalDate localDate = LocalDate.now().minusDays(random.nextInt(365));
-            Date creationDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            dummyToDo.setCreationDate(creationDate);
-
-            // Create random dates within the next year for dueDate
-            localDate = LocalDate.now().plusDays(random.nextInt(365));
-            Date dueDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            dummyToDo.setDueDate(dueDate);
-
-            boolean isDone = random.nextBoolean();
-            dummyToDo.setDone(isDone);
-
-            if (isDone) {
-                long elapsedDaysBetween = ThreadLocalRandom.current().nextLong(1, 365);
-                Date doneDate = Date
-                        .from(dummyToDo.getCreationDate().toInstant().plus(Duration.ofDays(elapsedDaysBetween)));
-                dummyToDo.setDoneDate(doneDate);
-            } else {
-                dummyToDo.setDoneDate(null);
-            }
-
-            addToDo(dummyToDo);
-        }
-    }
 
     public ToDo getToDo(String id) {
         return toDos.stream().filter(todo -> id.equals(todo.getId())).findFirst()
@@ -114,8 +74,8 @@ public class ToDoRepositoryCustomImpl implements ToDoRepository {
     public ToDo addToDo(ToDo todo) {
         String id = java.util.UUID.randomUUID().toString();
         todo.setId(id);
-        // todo.setDone(false);
-        // todo.setCreationDate(new Date());
+        todo.setDone(false);
+        todo.setCreationDate(new Date());
         toDos.add(todo);
         return getToDo(id);
     }

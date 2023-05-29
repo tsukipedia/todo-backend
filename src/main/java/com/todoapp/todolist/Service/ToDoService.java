@@ -16,6 +16,8 @@ import com.todoapp.todolist.Model.ToDoList;
 import com.todoapp.todolist.Model.ToDoListResponse;
 import com.todoapp.todolist.Repository.ToDoRepository;
 
+import io.micrometer.common.util.StringUtils;
+
 @Service
 public class ToDoService {
 
@@ -27,7 +29,7 @@ public class ToDoService {
         ToDoList todos = new ToDoList();
         ToDoListResponse response = new ToDoListResponse();
 
-        if(sortBy == null) todos = repository.findAll(pageSize, lastFetchedIndex);
+        if(StringUtils.isBlank(sortBy)) todos = repository.findAll(pageSize, lastFetchedIndex);
         else {
             if(sortBy.equalsIgnoreCase("priority")) {
                 todos = repository.findAllAndSortByPriority(pageSize, lastFetchedIndex);
